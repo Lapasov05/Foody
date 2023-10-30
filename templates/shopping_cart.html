@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_tags %}
+{% block title %}Shopping cart{% endblock %}
+
+{% block css %}<!-- font awesome-->
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500&family=Lora:wght@600;700&display=swap"
+          rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="{% static 'lib/animate/animate.min.css' %}" rel="stylesheet">
+    <link href="{% static 'lib/owlcarousel/assets/owl.carousel.min.css' %}" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row mb-5">
+            <div class="site-blocks-table">
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th class="product-thumbnail">Image</th>
+                        <th class="product-thumbnail">ID</th>
+                        <th class="product-name">Product</th>
+                        <th class="product-price">Price</th>
+                        <th class="product-count">Count</th>
+                        <th class="product-total">Total</th>
+                        <th class="product-remove">Remove</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for product in shopping_cart_products %}
+                        <tr>
+                            <td class="product-id">
+                                <span>{{ product.index }}</span>
+                            </td>
+                            <td class="product-thumbnail">
+                                <img src="{{ product.img.img.url }}" alt="Image" class="img-fluid">
+                            </td>
+                            <td class="product-name">
+                                <h2 class="h5 text-black">{{ product.service.title }}</h2>
+                            </td>
+                            <td>${{ product.service.cost }}</td>
+                            <td>
+                                <div class="input-group mb-3" style="max-width: 120px;">
+                                    <div class="input-group-prepend">
+                                        <button class="btn btn-outline-primary js-btn-minus" type="button"
+                                                onclick="decrement_count({{ product.id }}, {{ product.service.cost }})">
+                                            &minus;
+                                        </button>
+                                    </div>
+                                    <input id="product_count_{{ product.id }}"
+                                           oninput="change_count({{ product.id }}, {{ product.service.cost }})"
+                                           type="text" class="form-control text-center" value="{{ product.count }}"
+                                           placeholder="" aria-label="Example text with button addon"
+                                           aria-describedby="button-addon1">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-primary js-btn-plus" type="button"
+                                                onclick="increment_count({{ product.id }}, {{ product.service.cost }})">
+                                            &plus;
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </td>
+                            <td>
+                                <span id="total_count_{{ product.id }}">${% calculate_total product.count product.service.cost %}</span>
+                            </td>
+                            <td>
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="shopping_cart_id" value="{{ product.id }}">
+                                    <button href="#" class="btn btn-primary btn-sm">X</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="user_id" value="{{ user.id }}">
+            <button type="submit" class="btn btn-primary">Checkout</button>
+        </form>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'lib/wow/wow.min.js' %}"></script>
+    <script src="{% static 'lib/easing/easing.min.js' %}"></script>
+    <script src="{% static 'lib/waypoints/waypoints.min.js' %}"></script>
+    <script src="{% static 'lib/owlcarousel/owl.carousel.min.js' %}"></script>
+
+    <!-- Template Javascript -->
+    <script src="{% static 'js/main.js' %}"></script>
+    <script>
+        const increment = (price, id) => {
+            fetch('http://68.183.190.248/{{ LANGUAGE_CODE }}/increment-count', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: id
+                })
+            }).then(rsp => rsp.json()).then(response => console.log(response))
+            calculate_total(price, id, 1)
+        }
+        const decrement = (price, id) => {
+            fetch('http://68.183.190.248/{{ LANGUAGE_CODE }}/decrement-count', {
+                method: 'POST',
+                body: JSON.stringify({
+                    id: id
+                })
+            }).then(rsp => rsp.json()).then(response => console.log(response))
+            calculate_total(price, id, 2)
+        }
+        const calculate_total = (price, id, value) => {
+            let product_count = document.getElementById('product_count_' + id).value
+            if (value === 1) {
+                product_count++
+            } else {
+                if (parseInt(product_count) !== 0) {
+                    product_count--
+                }
+            }
+            const total_price = product_count * price
+            console.log(product_count)
+            document.getElementById('total_price_' + id).innerHTML = '$' + `${total_price}`
+        }
+    </script>
+{% endblock %}

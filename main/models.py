@@ -21,18 +21,6 @@ class Product(models.Model):
         return self.title
 
 
-class Todos(models.Model):
-    text = models.TextField()
-    expires_at = models.DateTimeField(auto_now_add=True)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
-
-    class Meta:
-        verbose_name = 'Todo'
-        verbose_name_plural = 'Todos'
-
-    def __str__(self):
-        return f'{self.text} from {self.owner}'
-
 
 class Image(models.Model):
     img = models.ImageField(upload_to='picture')
@@ -49,4 +37,7 @@ class Shopping_Cart(models.Model):
         return f'{self.product.title} from {self.user.username}'
 
 
-
+class Comment(models.Model):
+    message=models.TextField()
+    user=models.ForeignKey(User,on_delete=models.CASCADE,blank=True,null=True)
+    created_at=models.DateTimeField(auto_now_add=True)

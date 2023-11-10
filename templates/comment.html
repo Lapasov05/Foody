@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block css %}
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500&family=Lora:wght@600;700&display=swap"
+          rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="{% static 'lib/animate/animate.min.css' %}" rel="stylesheet">
+    <link href="{% static 'lib/owlcarousel/assets/owl.carousel.min.css' %}" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <style>
+        form[method="post"] {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        form[method="post"] label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333333;
+        }
+
+        form[method="post"] textarea {
+            width: 100%;
+            height: 120px;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #cccccc;
+            resize: vertical;
+            font-family: Arial, sans-serif;
+        }
+
+        form[method="post"] input[type="checkbox"] {
+            margin-top: 5px;
+        }
+
+        form[method="post"] .btn {
+            display: inline-block;
+            padding: 10px 20px;
+         pyhtoon    font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            border-radius: 4px;
+            color: #ffffff;
+            background-color: #007bff;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+
+        form[method="post"] .btn-secondary {
+            background-color: #6c757d;
+        }
+
+        form[method="post"] .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+{% endblock %}
+
+
+{% block content %}
+    <!-- Page Header Start -->
+    <div class="container-fluid page-header mb-5 wow fadeIn" data-wow-delay="0.1s">
+        <div class="container">
+            <h1 class="display-3 mb-3 animated slideInDown">Comments</h1>
+        </div>
+    </div>
+    <!-- Page Header End -->
+    <div class="container">
+        <form method="post">
+            {% csrf_token %}
+            <label for="message">Message</label>
+            <textarea name="message" id="message" cols="30" rows="10"></textarea><br>
+            <label for="is_anonymous">Is anonymous?</label>
+            <input type="checkbox" name="is_anonymous" id="is_anonymous"/><br>
+            <button type="submit" class="btn btn-secondary">OK</button>
+        </form>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'lib/wow/wow.min.js' %}"></script>
+    <script src="{% static 'lib/easing/easing.min.js' %}"></script>
+    <script src="{% static 'lib/waypoints/waypoints.min.js' %}"></script>
+    <script src="{% static 'lib/owlcarousel/owl.carousel.min.js' %}"></script>
+
+    <!-- Template Javascript -->
+    <script src="{% static 'js/main.js' %}"></script>
+{% endblock %}

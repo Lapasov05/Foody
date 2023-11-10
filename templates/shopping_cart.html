@@ -26,6 +26,13 @@
 {% endblock %}
 
 {% block content %}
+    <!-- Page Header Start -->
+    <div class="container-fluid page-header wow fadeIn" data-wow-delay="0.1s">
+        <div class="container">
+            <h1 class="display-3 mb-3 animated slideInDown">Shopping cart</h1>
+        </div>
+    </div>
+    <!-- Page Header End -->
     <div class="container">
         <div class="row mb-5">
             <div class="site-blocks-table">
@@ -48,28 +55,29 @@
                                 <span>{{ product.index }}</span>
                             </td>
                             <td class="product-thumbnail">
-                                <img src="{{ product.img.img.url }}" alt="Image" class="img-fluid">
+                                <img src="{{ product.img.img.url }}" alt="Image" class="img-fluid"
+                                     style="width: 100px; height: auto;">
                             </td>
                             <td class="product-name">
-                                <h2 class="h5 text-black">{{ product.service.title }}</h2>
+                                <h2 class="h5 text-black">{{ product.product.title }}</h2>
                             </td>
-                            <td>${{ product.service.cost }}</td>
+                            <td>${{ product.product.price }}</td>
                             <td>
                                 <div class="input-group mb-3" style="max-width: 120px;">
                                     <div class="input-group-prepend">
                                         <button class="btn btn-outline-primary js-btn-minus" type="button"
-                                                onclick="decrement_count({{ product.id }}, {{ product.service.cost }})">
+                                                onclick="decrement_count({{ product.id }}, {{ product.product.price }})">
                                             &minus;
                                         </button>
                                     </div>
                                     <input id="product_count_{{ product.id }}"
-                                           oninput="change_count({{ product.id }}, {{ product.service.cost }})"
+                                           oninput="change_count({{ product.id }}, {{ product.product.price }})"
                                            type="text" class="form-control text-center" value="{{ product.count }}"
                                            placeholder="" aria-label="Example text with button addon"
                                            aria-describedby="button-addon1">
                                     <div class="input-group-append">
                                         <button class="btn btn-outline-primary js-btn-plus" type="button"
-                                                onclick="increment_count({{ product.id }}, {{ product.service.cost }})">
+                                                onclick="increment_count({{ product.id }}, {{ product.product.price }})">
                                             &plus;
                                         </button>
                                     </div>
@@ -77,13 +85,13 @@
 
                             </td>
                             <td>
-                                <span id="total_count_{{ product.id }}">${% calculate_total product.count product.service.cost %}</span>
+                                <span id="total_count_{{ product.id }}">{% calculate_total product.count product.product.price %}</span>
                             </td>
                             <td>
                                 <form method="post">
                                     {% csrf_token %}
                                     <input type="hidden" name="shopping_cart_id" value="{{ product.id }}">
-                                    <button href="#" class="btn btn-primary btn-sm">X</button>
+                                    <button href="/shopping_cart" class="btn btn-primary btn-sm">X</button>
                                 </form>
                             </td>
                         </tr>
@@ -92,11 +100,11 @@
                 </table>
             </div>
         </div>
-        <form method="post">
-            {% csrf_token %}
-            <input type="hidden" name="user_id" value="{{ user.id }}">
-            <button type="submit" class="btn btn-primary">Checkout</button>
-        </form>
+{#        <form method="post">#}
+{#            {% csrf_token %}#}
+{#            <input type="hidden" name="user_id" value="{{ user.id }}">#}
+{#            <button type="submit" class="btn btn-primary">Checkout</button>#}
+{#        </form>#}
     </div>
 {% endblock %}
 
@@ -111,40 +119,54 @@
 
     <!-- Template Javascript -->
     <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/main2.js' %}"></script>
+    <script src="{% static 'js/aos.js' %}"></script>
     <script>
-        const increment = (price, id) => {
-            fetch('http://68.183.190.248/{{ LANGUAGE_CODE }}/increment-count', {
+        const increment_count = (id, price) => {
+            fetch('http://127.0.0.1:8000/increment', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    id: id
+                    'id': id
                 })
-            }).then(rsp => rsp.json()).then(response => console.log(response))
-            calculate_total(price, id, 1)
+            }).then(rsp => rsp.json()).then(response => {
+                let count = document.getElementById('product_count_' + id).value
+                document.getElementById('total_count_' + id).innerHTML = '$' + `${parseInt(price) * parseInt(count)}`
+                console.log(response)
+            })
         }
-        const decrement = (price, id) => {
-            fetch('http://68.183.190.248/{{ LANGUAGE_CODE }}/decrement-count', {
+        const decrement_count = (id, price) => {
+            fetch('http://127.0.0.1:8000/decrement', {
                 method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
-                    id: id
+                    'id': id
                 })
-            }).then(rsp => rsp.json()).then(response => console.log(response))
-            calculate_total(price, id, 2)
+            }).then(rsp => rsp.json()).then(response => {
+                let count = document.getElementById('product_count_' + id).value
+                document.getElementById('total_count_' + id).innerHTML = '$' + `${parseInt(price) * parseInt(count)}`
+                console.log(response)
+            })
         }
-        const calculate_total = (price, id, value) => {
-            let product_count = document.getElementById('product_count_' + id).value
-            if (value === 1) {
-                product_count++
-            } else {
-                if (parseInt(product_count) !== 0) {
-                    product_count--
-                }
-            }
-            const total_price = product_count * price
-            console.log(product_count)
-            document.getElementById('total_price_' + id).innerHTML = '$' + `${total_price}`
+        const change_count = (id, price) => {
+            fetch('http://127.0.0.1:8000/change', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    'id': id,
+                    'product_count': document.getElementById('product_count_' + id).value
+                })
+            }).then(rsp => rsp.json()).then(response => {
+                let count = document.getElementById('product_count_' + id).value
+                document.getElementById('total_count_' + id).innerHTML = '$' + `${parseInt(price) * parseInt(count)}`
+                console.log(response)
+            })
         }
     </script>
 {% endblock %}
